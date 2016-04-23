@@ -9,10 +9,9 @@ from astropy.io import fits
 import PIL.Image as pil_img # PIL.Image is a module not a class...
 import numpy as np
 
-
 # SAVE THE IMAGE ##############################################################
 
-def save(img, output_file_path, min_val=None, max_val=None):
+def save_to_png(img, output_file_path, min_val=None, max_val=None):
     """
     img is the image and it should be a 2D numpy array with values in the range [0,255].
     min_val and max_val are normalization parameters (the minimum and maximum value of a pixel).
@@ -70,13 +69,13 @@ def main():
         if img.ndim == 2:
 
             # If there are only one image (img is an 2D array)
-            save(img, "out_hdu{}.png".format(hdu_index))
+            save_to_png(img, "out_hdu{}.png".format(hdu_index))
 
         elif img.ndim == 3:
 
             # If there is more than one image (img is an 3D array)
             for img_index, img in enumerate(img):
-                save(img, "out_hdu{}_{}.png".format(hdu_index, img_index))
+                save_to_png(img, "out_hdu{}_{}.png".format(hdu_index, img_index))
 
     # Close the FITS file
     hdu_list.close()

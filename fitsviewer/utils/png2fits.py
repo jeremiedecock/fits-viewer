@@ -10,10 +10,9 @@ import PIL.Image as pil_img # PIL.Image is a module not a class...
 import numpy as np
 import os
 
-
 # SAVE THE IMAGE ##############################################################
 
-def save(img, output_file_path):
+def save_to_fits(img, output_file_path):
     """
     img is the image and it should be a 2D numpy array with values in the range [0,255].
     """
@@ -48,7 +47,7 @@ def main():
     # READ AND SAVE DATA ######################################################
 
     img = np.array(pil_img.open(input_file_path).convert('L'))  # img is a 2D numpy array
-    save(img, "out.fits")
+    save_to_fits(img, "out.fits")
 
 if __name__ == "__main__":
     main()
