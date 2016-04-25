@@ -8,7 +8,7 @@ Copyright (c) 2016 Jeremie DECOCK (http://www.jdhp.org)
 * Web site: http://www.jdhp.org/projects_en.html#fits-viewer
 * Source code: https://github.com/jeremiedecock/fits-viewer
 * Issue tracker: https://github.com/jeremiedecock/fits-viewer/issues
-* PyAX-12 on PyPI: https://pypi.python.org/pypi/fits-viewer
+* FITS Viewer on PyPI: https://pypi.python.org/pypi/fits-viewer
 
 
 Description
