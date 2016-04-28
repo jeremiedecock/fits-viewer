@@ -42,6 +42,7 @@ from matplotlib import cm
 import tkinter as tk
 
 import argparse
+import os
 
 from astropy.io import fits
 
@@ -79,24 +80,50 @@ class TkGUI:
 
         self.fig = fig
 
-        # GUI PARAMETERS ##############
+        # Gui parameters ##############
 
         self.hide_color_bar = False
 
-        # MAKE WIDGETS ################
+        # Make widgets ################
 
         self.root = tk.Tk()   # TODO
 
-        # ADD A CALLBACK ON WM_DELETE_WINDOW EVENT
+        # Add a callback on WM_DELETE_WINDOW events
         self.root.protocol("WM_DELETE_WINDOW", self.quit)
 
-        # CANVAS
+        # Canvas
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.root)
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
 
-        # BUTTONS
+        # Buttons
         button = tk.Button(master=self.root, text='Quit', command=self.quit)
         button.pack(fill="x", expand=True)
+
+        # Make a menubar ##############
+
+        # Create a toplevel menu
+        menubar = tk.Menu(self.root)
+
+        # Create a pulldown menu
+        file_menu = tk.Menu(menubar, tearoff=0)
+        file_menu.add_command(label="Open...", command=self.select_fits_file)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=self.quit)
+
+        menubar.add_cascade(label="File", menu=file_menu)
+
+#        # Create a pulldown menu
+#        help_menu = tk.Menu(menubar, tearoff=0)
+#        help_menu.add_command(label="About...", command=callback)
+#
+#        menubar.add_cascade(label="Help", menu=help_menu)
+
+        # Display the menu
+        # The config method is used to attach the menu to the root window. The
+        # contents of that menu is used to create a menubar at the top of the root
+        # window. There is no need to pack the menu, since it is automatically
+        # displayed by Tkinter.
+        self.root.config(menu=menubar)
 
     def run(self):
         """Launch the main loop (Tk event loop)."""
@@ -108,6 +135,34 @@ class TkGUI:
         self.root.destroy()  # this is necessary on Windows to prevent
                              # Fatal Python Error: PyEval_RestoreThread: NULL tstate
 
+    def select_fits_file(self):
+        """
+        TODO...
+        """
+
+        # Check and parse the file
+
+        # FILE_TYPES = [(label1, pattern1), (label2, pattern2), ...]
+        FILE_TYPES = [
+                    ('FITS Files', '.fits')
+                ]
+
+        HOME = os.path.expanduser("~")
+
+        path = tk.filedialog.askopenfilename(parent=self.root,
+                                             filetypes=FILE_TYPES,     # optional
+                                             defaultextension='.fits', # optional
+                                             initialdir=HOME,          # optional
+                                             #initialfile='demo.fits',  # optional
+                                             title='Select your file') # optional
+
+        self.open_fits_file(path)
+
+    def open_fits_file(self, file_path):
+        """
+        TODO...
+        """
+        pass
 
 def main():
 
