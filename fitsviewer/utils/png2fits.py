@@ -30,9 +30,11 @@ def save_to_fits(img, output_file_path):
 
     # SAVE THE FITS FILE ##################################
 
+    # Remove the FITS file if it already exists
     if os.path.isfile(output_file_path):
         os.remove(output_file_path)
 
+    # Save the FITS file
     hdu.writeto(output_file_path)
 
 def main():
