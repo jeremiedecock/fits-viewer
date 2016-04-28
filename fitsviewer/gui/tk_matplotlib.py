@@ -38,10 +38,17 @@ def main():
 
     # PARSE OPTIONS ###############################################################
 
-    parser = argparse.ArgumentParser(description="Display a FITS file with Tkinter.")
+    parser = argparse.ArgumentParser(description="Display a FITS file.")
+
+    parser.add_argument("--cmap", "-c", default="gray", metavar="STRING",
+                        help="the colormap to use")
+
     parser.add_argument("filearg", nargs=1, metavar="FILE",
                         help="the FITS file to process")
+
     args = parser.parse_args()
+
+    cmap = args.cmap
     input_file_path = args.filearg[0]
 
 
@@ -58,7 +65,7 @@ def main():
     fig = plt.figure(figsize=(8.0, 8.0))
     ax = fig.add_subplot(111)
     ax.set_title(input_file_path)
-    ax.imshow(input_img, interpolation='nearest', cmap=cm.gray)
+    ax.imshow(input_img, interpolation='nearest', cmap=cmap)
 
 
     # TKINTER #####################################################################
