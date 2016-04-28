@@ -26,9 +26,17 @@
 - [ ] Set the min/max value of the output domain
 - [ ] Ask before removing the output file + add a --force option
 - [ ] Set the output file path
+- [ ] Convert multiple files
+- [ ] Convert multiple PNG files to one 3D FITS file
 
 ## fits2png
 
 - [ ] Set the min/max value of the input domain
 - [ ] Ask before removing the output file + add a --force option
 - [ ] Set the output file path
+- [ ] Convert multiple files
+- [ ] Convert one 3D FITS file to multiple PNG files
+
+## fits2gif
+
+- [ ] Convert one 3D FITS file to one animated GIF file
