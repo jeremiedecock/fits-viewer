@@ -10,7 +10,7 @@
 - [ ] Set the window title
 - [ ] Display FITS header
 - [ ] Show the colorbar (from GUI and from command line)
-- [ ] Choose the colormap (from GUI and from command line)
+- [x] Choose the colormap (from GUI and from command line)
 - [ ] Show an histogram (from GUI and from command line)
 - [ ] Show statistics (mean, std, ...)
 - [ ] Save the figure to PNG/PDF/... (from GUI and from command line)
