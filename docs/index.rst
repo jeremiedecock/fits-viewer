@@ -18,14 +18,6 @@ Contents:
 * PyDuplicateFileManager on PyPI: https://pypi.python.org/pypi/fits-viewer
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-
 Credits
 =======
 
