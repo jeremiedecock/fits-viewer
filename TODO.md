@@ -7,16 +7,17 @@
 
 ## fitsviewer
 
-- [ ] Set the window title
-- [ ] Display FITS header
-- [ ] Show the colorbar (from GUI and from command line)
-- [x] Choose the colormap (from GUI and from command line)
-- [ ] Show an histogram (from GUI and from command line)
-- [ ] Show statistics (mean, std, ...)
+- [x] Set the window title
 - [ ] Save the figure to PNG/PDF/... (from GUI and from command line)
+- [ ] Show the colorbar (from GUI and from command line)
+- [ ] Choose the colormap (from GUI and from command line)
+- [ ] Show an histogram (from GUI and from command line)
+- [ ] Show statistics (resolution, mean, std, ...)
 - [ ] Show level lines (from GUI and from command line)
+- [ ] Display FITS header
 - [ ] Choose the HDU to display
 - [ ] Zoom
+- [ ] Add an "open" button to open files from the GUI
 - [ ] Choose scale (linear, log, ...) (from GUI and from command line)
 - [ ] Manage 3D pictures (...)
 - [ ] How to display hexagonal pictures from HESS/CTA (and keep the software generic) ?
