@@ -41,10 +41,11 @@ def main():
     parser = argparse.ArgumentParser(description="Display a FITS file.")
 
     parser.add_argument("--cmap", "-c", default="gray", metavar="STRING",
-                        help="the colormap to use")
+            help="the colormap to use. The list of available color maps is available here: "
+                 "http://matplotlib.org/examples/color/colormaps_reference.html")
 
     parser.add_argument("filearg", nargs=1, metavar="FILE",
-                        help="the FITS file to process")
+            help="the FITS file to process")
 
     args = parser.parse_args()
 
