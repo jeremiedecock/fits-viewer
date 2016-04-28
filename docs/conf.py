@@ -258,7 +258,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     (master_doc, 'fits-viewer', 'fits-viewer Documentation',
-     [author], 1)
+     [authors], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -272,7 +272,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'fits-viewer', 'fits-viewer Documentation',
-     author, 'fits-viewer', 'One line description of project.',
+     authors, 'fits-viewer', 'One line description of project.',
      'Miscellaneous'),
 ]
 
