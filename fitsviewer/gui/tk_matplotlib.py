@@ -73,7 +73,7 @@ class TkGUI:
     TODO...
     """
 
-    def __init__(self):
+    def __init__(self, root):
         """
         TODO...
         """
@@ -85,12 +85,17 @@ class TkGUI:
 
         # Gui parameters ##############
 
-        self.hide_color_bar = None
         self.color_map = None
+
+        self._show_color_bar = tk.BooleanVar()
+
+        self.file_path = None
+        self.image_array = None
 
         # Make widgets ################
 
-        self.root = tk.Tk()   # TODO
+        #self.root = tk.Tk()   # TODO
+        self.root = root
 
         # Add a callback on WM_DELETE_WINDOW events
         self.root.protocol("WM_DELETE_WINDOW", self.quit)
@@ -116,11 +121,13 @@ class TkGUI:
 
         menubar.add_cascade(label="File", menu=file_menu)
 
-#        # Create a pulldown menu
-#        help_menu = tk.Menu(menubar, tearoff=0)
-#        help_menu.add_command(label="About...", command=callback)
-#
-#        menubar.add_cascade(label="Help", menu=help_menu)
+        # Create a pulldown menu
+        view_menu = tk.Menu(menubar, tearoff=0)
+        view_menu.add_checkbutton(label="Show color bar",
+                                  variable=self._show_color_bar,
+                                  command=self.draw_figure)
+
+        menubar.add_cascade(label="View", menu=view_menu)
 
         # Display the menu
         # The config method is used to attach the menu to the root window. The
@@ -129,6 +136,7 @@ class TkGUI:
         # displayed by Tkinter.
         self.root.config(menu=menubar)
 
+
     def run(self):
         """
         Launch the main loop (Tk event loop).
@@ -136,6 +144,7 @@ class TkGUI:
 
         # TODO ???
         self.root.mainloop()
+
 
     def quit(self):
         self.root.quit()     # stops mainloop
@@ -170,40 +179,61 @@ class TkGUI:
 
     def open_fits_file(self, file_path):
         """
-        TODO...
+        Open and display the given FITS file.
         """
         # READ THE INPUT FILE #################################################
 
-        image_array = get_image_array_from_fits_file(file_path)
+        self.file_path = file_path
+        self.image_array = get_image_array_from_fits_file(self.file_path)
 
-        if image_array.ndim != 2:
+        if self.image_array.ndim != 2:
             raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
 
-        # TKINTER #############################################################
+        self.root.title(self.file_path)
+        self.draw_figure()
 
-        self.root.title(file_path)
 
-        # MATPLOTLIB ##########################################################
+    def close_fits_file(self):
+        self.file_path = None
+        self.image_array = None
+        self.clear_figure()
 
-        #self.fig.clf()
-        #self.ax = self.fig.add_subplot(111)
 
-        self.ax.set_title(file_path)
+    def clear_figure(self):
+        self.fig.clf()
 
-        im = self.ax.imshow(image_array,
+
+    def draw_figure(self):
+        self.fig.clf() # TODO
+        self.ax = self.fig.add_subplot(111)
+
+        #self.ax.set_title(self.file_path)
+
+        im = self.ax.imshow(self.image_array,
                             origin='lower',
                             interpolation='nearest',
                             cmap=self.color_map)
 
+        if self.show_color_bar:
+            plt.colorbar(im) # draw the colorbar
+
         self.fig.canvas.draw()
 
-        #if not self.hide_color_bar:
-        #    plt.colorbar(im) # draw the colorbar
+    # PROPERTIES ##############################################################
+
+    @property
+    def show_color_bar(self):
+        return self._show_color_bar.get()
+
+    @show_color_bar.setter
+    def show_color_bar(self, value):
+        self._show_color_bar.set(value)
 
 
 def main():
 
-    gui = TkGUI()
+    root = tk.Tk()   # TODO
+    gui = TkGUI(root)
 
     # PARSE OPTIONS ###########################################################
 
@@ -226,7 +256,7 @@ def main():
     # SET OPTIONS #############################################################
 
     gui.color_map = args.cmap
-    gui.hide_color_bar = args.hidecbar
+    gui.show_color_bar = not args.hidecbar
 
     gui.open_fits_file(input_file_path)
 
