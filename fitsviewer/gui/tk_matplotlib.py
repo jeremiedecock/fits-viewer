@@ -78,6 +78,9 @@ class TkGUI:
         TODO...
         """
 
+        self.file_path = None
+        self.image_array = None
+
         # Matplotlib ##################
 
         self.fig = plt.figure(figsize=(8.0, 8.0))
@@ -86,15 +89,10 @@ class TkGUI:
         # Gui parameters ##############
 
         self.color_map = None
-
         self._show_color_bar = tk.BooleanVar()
-
-        self.file_path = None
-        self.image_array = None
 
         # Make widgets ################
 
-        #self.root = tk.Tk()   # TODO
         self.root = root
 
         # Add a callback on WM_DELETE_WINDOW events
@@ -116,6 +114,7 @@ class TkGUI:
         # Create a pulldown menu
         file_menu = tk.Menu(menubar, tearoff=0)
         file_menu.add_command(label="Open...", command=self.select_fits_file)
+        file_menu.add_command(label="Close", command=self.close_fits_file)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.quit)
 
@@ -201,23 +200,25 @@ class TkGUI:
 
     def clear_figure(self):
         self.fig.clf()
+        self.fig.canvas.draw()
 
 
     def draw_figure(self):
-        self.fig.clf() # TODO
-        self.ax = self.fig.add_subplot(111)
+        if self.image_array is not None:
+            self.fig.clf() # TODO
+            self.ax = self.fig.add_subplot(111)
 
-        #self.ax.set_title(self.file_path)
+            #self.ax.set_title(self.file_path)
 
-        im = self.ax.imshow(self.image_array,
-                            origin='lower',
-                            interpolation='nearest',
-                            cmap=self.color_map)
+            im = self.ax.imshow(self.image_array,
+                                origin='lower',
+                                interpolation='nearest',
+                                cmap=self.color_map)
 
-        if self.show_color_bar:
-            plt.colorbar(im) # draw the colorbar
+            if self.show_color_bar:
+                plt.colorbar(im) # draw the colorbar
 
-        self.fig.canvas.draw()
+            self.fig.canvas.draw()
 
     # PROPERTIES ##############################################################
 
