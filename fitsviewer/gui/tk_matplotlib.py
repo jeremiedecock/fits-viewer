@@ -96,8 +96,8 @@ class TkGUI:
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
 
         # Buttons
-        button = tk.Button(master=self.root, text='Quit', command=self.quit)
-        button.pack(fill="x", expand=True)
+        quit_button = tk.Button(master=self.root, text='Quit', command=self.quit)
+        quit_button.pack(fill="x", expand=True)
 
         # Make a menubar ##############
 
@@ -137,7 +137,9 @@ class TkGUI:
 
     def select_fits_file(self):
         """
-        TODO...
+        Display a file dialog to select the FITS file to open.
+
+        Return the path of the selected file.
         """
 
         # Check and parse the file
