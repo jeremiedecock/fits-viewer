@@ -73,16 +73,20 @@ class TkGUI:
     TODO...
     """
 
-    def __init__(self, fig):
+    def __init__(self):
         """
         TODO...
         """
 
-        self.fig = fig
+        # Matplotlib ##################
+
+        self.fig = plt.figure(figsize=(8.0, 8.0))
+        self.ax = self.fig.add_subplot(111)
 
         # Gui parameters ##############
 
-        self.hide_color_bar = False
+        self.hide_color_bar = None
+        self.color_map = None
 
         # Make widgets ################
 
@@ -126,7 +130,10 @@ class TkGUI:
         self.root.config(menu=menubar)
 
     def run(self):
-        """Launch the main loop (Tk event loop)."""
+        """
+        Launch the main loop (Tk event loop).
+        """
+
         # TODO ???
         self.root.mainloop()
 
@@ -160,15 +167,45 @@ class TkGUI:
 
         self.open_fits_file(path)
 
+
     def open_fits_file(self, file_path):
         """
         TODO...
         """
-        pass
+        # READ THE INPUT FILE #################################################
+
+        image_array = get_image_array_from_fits_file(file_path)
+
+        if image_array.ndim != 2:
+            raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
+
+        # TKINTER #############################################################
+
+        self.root.title(file_path)
+
+        # MATPLOTLIB ##########################################################
+
+        #self.fig.clf()
+        #self.ax = self.fig.add_subplot(111)
+
+        self.ax.set_title(file_path)
+
+        im = self.ax.imshow(image_array,
+                            origin='lower',
+                            interpolation='nearest',
+                            cmap=self.color_map)
+
+        self.fig.canvas.draw()
+
+        #if not self.hide_color_bar:
+        #    plt.colorbar(im) # draw the colorbar
+
 
 def main():
 
-    # PARSE OPTIONS ###############################################################
+    gui = TkGUI()
+
+    # PARSE OPTIONS ###########################################################
 
     parser = argparse.ArgumentParser(description="Display a FITS file.")
 
@@ -184,33 +221,17 @@ def main():
 
     args = parser.parse_args()
 
-    color_map = args.cmap
-    hide_color_bar = args.hidecbar
     input_file_path = args.filearg[0]
 
+    # SET OPTIONS #############################################################
 
-    # READ THE INPUT FILE #########################################################
+    gui.color_map = args.cmap
+    gui.hide_color_bar = args.hidecbar
 
-    input_img = get_image_array_from_fits_file(input_file_path)
+    gui.open_fits_file(input_file_path)
 
-    if input_img.ndim != 2:
-        raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
+    # LAUNCH THE MAIN LOOP ####################################################
 
-
-    # MATPLOTLIB ##################################################################
-
-    fig = plt.figure(figsize=(8.0, 8.0))
-    ax = fig.add_subplot(111)
-    ax.set_title(input_file_path)
-
-    im = ax.imshow(input_img, interpolation='nearest', cmap=color_map)
-
-    if not hide_color_bar:
-        plt.colorbar(im) # draw the colorbar
-
-    # TKINTER #####################################################################
-
-    gui = TkGUI(fig)
     gui.run()
 
 if __name__ == "__main__":
