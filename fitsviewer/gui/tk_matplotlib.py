@@ -84,7 +84,7 @@ class TkGUI:
         # Matplotlib ##################
 
         self.fig = plt.figure(figsize=(8.0, 8.0))
-        self.ax = self.fig.add_subplot(111)
+        self.ax = None
 
         # Gui parameters ##############
 
@@ -233,7 +233,7 @@ class TkGUI:
 
 def main():
 
-    root = tk.Tk()   # TODO
+    root = tk.Tk()   # TODO ?
     gui = TkGUI(root)
 
     # PARSE OPTIONS ###########################################################
@@ -247,19 +247,20 @@ def main():
     parser.add_argument("--hidecbar", "-H", action="store_true",
             help="hide the color bar")
 
-    parser.add_argument("filearg", nargs=1, metavar="FILE",
+    parser.add_argument("filearg", nargs="?", metavar="FILE", const=None,
             help="the FITS file to process")
 
     args = parser.parse_args()
 
-    input_file_path = args.filearg[0]
+    input_file_path = args.filearg
 
     # SET OPTIONS #############################################################
 
     gui.color_map = args.cmap
     gui.show_color_bar = not args.hidecbar
 
-    gui.open_fits_file(input_file_path)
+    if input_file_path is not None:
+        gui.open_fits_file(input_file_path)
 
     # LAUNCH THE MAIN LOOP ####################################################
 
