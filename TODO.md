@@ -13,6 +13,7 @@
 - [ ] Choose the colormap (from GUI and from command line)
 - [ ] Show an histogram (from GUI and from command line)
 - [ ] Save the figure to PNG/PDF/... (from GUI and from command line)
+- [ ] Memorize the last opened directory
 - [ ] Show statistics (resolution, mean, std, ...)
 - [ ] Show level lines (from GUI and from command line)
 - [ ] Display FITS header
@@ -20,6 +21,7 @@
 - [ ] Zoom
 - [ ] Choose scale (linear, log, ...) (from GUI and from command line)
 - [ ] Manage 3D pictures (...)
+- [ ] Show bargraph for the current row/line (like in DS9)
 - [ ] How to display hexagonal pictures from HESS/CTA (and keep the software generic) ?
 
 ## png2fits
