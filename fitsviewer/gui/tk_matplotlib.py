@@ -102,9 +102,9 @@ class TkGUI:
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.root)
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
 
-        # Buttons
-        quit_button = tk.Button(master=self.root, text='Quit', command=self.quit)
-        quit_button.pack(fill="x", expand=True)
+        ## Buttons
+        #quit_button = tk.Button(master=self.root, text='Quit', command=self.quit)
+        #quit_button.pack(fill="x", expand=True)
 
         # Make a menubar ##############
 
