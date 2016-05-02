@@ -19,7 +19,7 @@ This program can be used to show FITS files.
 
 Note:
 
-    This project is still in beta stage.
+    This project is in beta stage.
 
 
 Dependencies
