@@ -46,6 +46,8 @@ import os
 
 from astropy.io import fits
 
+DEFAULT_COLOR_MAP="gray"
+
 ###############################################################################
 
 def get_image_array_from_fits_file(file_path):
@@ -131,22 +133,11 @@ class TkGUI:
         # Create a pulldown menu: /View/Color Map
         colormap_menu = tk.Menu(view_menu, tearoff=0)
 
-        colormap_menu.add_radiobutton(label="plasma",
-                                      variable=self._color_map,
-                                      value="plasma",
-                                      command=self.draw_figure)
-        colormap_menu.add_radiobutton(label="inferno",
-                                      variable=self._color_map,
-                                      value="inferno",
-                                      command=self.draw_figure)
-        colormap_menu.add_radiobutton(label="viridis",
-                                      variable=self._color_map,
-                                      value="viridis",
-                                      command=self.draw_figure)
-        colormap_menu.add_radiobutton(label="gray",
-                                      variable=self._color_map,
-                                      value="gray",
-                                      command=self.draw_figure)
+        for cmap_str in get_colour_map_list():
+            colormap_menu.add_radiobutton(label=cmap_str,
+                                          variable=self._color_map,
+                                          value=cmap_str,
+                                          command=self.draw_figure)
 
         view_menu.add_cascade(label="Color Map", menu=colormap_menu)
 
@@ -270,7 +261,7 @@ def main():
 
     parser = argparse.ArgumentParser(description="Display a FITS file.")
 
-    parser.add_argument("--cmap", "-c", default="gray", metavar="STRING",
+    parser.add_argument("--cmap", "-c", default=DEFAULT_COLOR_MAP, metavar="STRING",
             help="the colormap to use. The list of available color maps is available here: "
                  "http://matplotlib.org/examples/color/colormaps_reference.html")
 
