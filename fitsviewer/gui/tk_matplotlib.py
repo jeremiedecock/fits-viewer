@@ -88,7 +88,7 @@ class TkGUI:
 
         # Gui parameters ##############
 
-        self.color_map = None
+        self._color_map = tk.StringVar()
         self._show_color_bar = tk.BooleanVar()
 
         # Make widgets ################
@@ -111,7 +111,7 @@ class TkGUI:
         # Create a toplevel menu
         menubar = tk.Menu(self.root)
 
-        # Create a pulldown menu
+        # Create a pulldown menu: /File
         file_menu = tk.Menu(menubar, tearoff=0)
         file_menu.add_command(label="Open...", command=self.select_fits_file)
         file_menu.add_command(label="Close", command=self.close_fits_file)
@@ -120,13 +120,35 @@ class TkGUI:
 
         menubar.add_cascade(label="File", menu=file_menu)
 
-        # Create a pulldown menu
+        # Create a pulldown menu: /View
         view_menu = tk.Menu(menubar, tearoff=0)
         view_menu.add_checkbutton(label="Show color bar",
                                   variable=self._show_color_bar,
                                   command=self.draw_figure)
 
         menubar.add_cascade(label="View", menu=view_menu)
+
+        # Create a pulldown menu: /View/Color Map
+        colormap_menu = tk.Menu(view_menu, tearoff=0)
+
+        colormap_menu.add_radiobutton(label="plasma",
+                                      variable=self._color_map,
+                                      value="plasma",
+                                      command=self.draw_figure)
+        colormap_menu.add_radiobutton(label="inferno",
+                                      variable=self._color_map,
+                                      value="inferno",
+                                      command=self.draw_figure)
+        colormap_menu.add_radiobutton(label="viridis",
+                                      variable=self._color_map,
+                                      value="viridis",
+                                      command=self.draw_figure)
+        colormap_menu.add_radiobutton(label="gray",
+                                      variable=self._color_map,
+                                      value="gray",
+                                      command=self.draw_figure)
+
+        view_menu.add_cascade(label="Color Map", menu=colormap_menu)
 
         # Display the menu
         # The config method is used to attach the menu to the root window. The
@@ -229,6 +251,14 @@ class TkGUI:
     @show_color_bar.setter
     def show_color_bar(self, value):
         self._show_color_bar.set(value)
+
+    @property
+    def color_map(self):
+        return self._color_map.get()
+
+    @color_map.setter
+    def color_map(self, value):
+        self._color_map.set(value)
 
 
 def main():
