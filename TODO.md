@@ -10,17 +10,17 @@
 - [x] Set the window title
 - [x] Add an "open" button to open files from the GUI
 - [x] Show the colorbar (from GUI and from command line)
-- [ ] Choose the colormap (from GUI and from command line)
-- [ ] Show an histogram (from GUI and from command line)
-- [ ] Save the figure to PNG/PDF/... (from GUI and from command line)
+- [x] Choose the colormap (from GUI and from command line)
+- [x] Show an histogram (from GUI and from command line)
 - [ ] Memorize the last opened directory
+- [ ] Save the figure to PNG/PDF/... (from GUI and from command line)
 - [ ] Show statistics (resolution, mean, std, ...)
+- [ ] Manage 3D pictures (...)
 - [ ] Show level lines (from GUI and from command line)
 - [ ] Display FITS header
-- [ ] Choose the HDU to display
+- [ ] Choose the HDU to display (checkbuttons in the menu bar: HDU / ...)
 - [ ] Zoom
 - [ ] Choose scale (linear, log, ...) (from GUI and from command line)
-- [ ] Manage 3D pictures (...)
 - [ ] Show bargraph for the current row/line (like in DS9)
 - [ ] How to display hexagonal pictures from HESS/CTA (and keep the software generic) ?
 
