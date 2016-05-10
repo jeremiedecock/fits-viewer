@@ -46,7 +46,13 @@ import os
 
 from astropy.io import fits
 
-DEFAULT_COLOR_MAP="gray"
+DEFAULT_COLOR_MAP = "gnuplot2" # "gray"
+
+# histogram types : [‘bar’ | ‘barstacked’ | ‘step’ | ‘stepfilled’]
+HISTOGRAM_TYPE = 'bar'
+
+#IMAGE_INTERPOLATION = 'bilinear'   # "smooth" map
+IMAGE_INTERPOLATION = 'nearest'    # "raw" (non smooth) map
 
 ###############################################################################
 
@@ -86,12 +92,13 @@ class TkGUI:
         # Matplotlib ##################
 
         self.fig = plt.figure(figsize=(8.0, 8.0))
-        self.ax = None
 
         # Gui parameters ##############
 
         self._color_map = tk.StringVar()
         self._show_color_bar = tk.BooleanVar()
+        self._show_image = tk.BooleanVar()
+        self._show_histogram = tk.BooleanVar()
 
         # Make widgets ################
 
@@ -124,8 +131,17 @@ class TkGUI:
 
         # Create a pulldown menu: /View
         view_menu = tk.Menu(menubar, tearoff=0)
+
         view_menu.add_checkbutton(label="Show color bar",
                                   variable=self._show_color_bar,
+                                  command=self.draw_figure)
+
+        view_menu.add_checkbutton(label="Show image",
+                                  variable=self._show_image,
+                                  command=self.draw_figure)
+
+        view_menu.add_checkbutton(label="Show histogram",
+                                  variable=self._show_histogram,
                                   command=self.draw_figure)
 
         menubar.add_cascade(label="View", menu=view_menu)
@@ -219,19 +235,54 @@ class TkGUI:
     def draw_figure(self):
         if self.image_array is not None:
             self.fig.clf() # TODO
-            self.ax = self.fig.add_subplot(111)
+            
+            if self.show_histogram and self.show_image:
 
-            #self.ax.set_title(self.file_path)
+                ax1 = self.fig.add_subplot(121)
+                ax2 = self.fig.add_subplot(122)
 
-            im = self.ax.imshow(self.image_array,
-                                origin='lower',
-                                interpolation='nearest',
-                                cmap=self.color_map)
+                self._draw_histogram(ax1)
+                self._draw_image(ax2)
+
+            elif self.show_histogram or self.show_image:
+
+                ax1 = self.fig.add_subplot(111)
+
+                if self.show_histogram:
+                    self._draw_histogram(ax1)
+                else:
+                    self._draw_image(ax1)
+
+            self.fig.canvas.draw()
+
+
+    def _draw_histogram(self, axis):
+
+            #axis.set_title(self.file_path)
+
+            # nparray.ravel(): Return a flattened array.
+            values, bins, patches = axis.hist(self.image_array.ravel(),
+                                              histtype=HISTOGRAM_TYPE,
+                                              bins=self.image_array.max() - self.image_array.min(),
+                                              #range=(0., 255.),
+                                              fc='k',
+                                              ec='k')
+
+            axis.set_xlim([self.image_array.min(), self.image_array.max()])
+
+
+    def _draw_image(self, axis):
+
+            im = axis.imshow(self.image_array,
+                             origin='lower',
+                             interpolation=IMAGE_INTERPOLATION,
+                             cmap=self.color_map)
+
+            #axis.set_axis_off()
 
             if self.show_color_bar:
                 plt.colorbar(im) # draw the colorbar
 
-            self.fig.canvas.draw()
 
     # PROPERTIES ##############################################################
 
@@ -242,6 +293,28 @@ class TkGUI:
     @show_color_bar.setter
     def show_color_bar(self, value):
         self._show_color_bar.set(value)
+
+    ###
+
+    @property
+    def show_image(self):
+        return self._show_image.get()
+
+    @show_image.setter
+    def show_image(self, value):
+        self._show_image.set(value)
+
+    ###
+
+    @property
+    def show_histogram(self):
+        return self._show_histogram.get()
+
+    @show_histogram.setter
+    def show_histogram(self, value):
+        self._show_histogram.set(value)
+
+    ###
 
     @property
     def color_map(self):
@@ -261,12 +334,18 @@ def main():
 
     parser = argparse.ArgumentParser(description="Display a FITS file.")
 
-    parser.add_argument("--cmap", "-c", default=DEFAULT_COLOR_MAP, metavar="STRING",
+    parser.add_argument("--cmap", "-C", default=DEFAULT_COLOR_MAP, metavar="STRING",
             help="the colormap to use. The list of available color maps is available here: "
                  "http://matplotlib.org/examples/color/colormaps_reference.html")
 
-    parser.add_argument("--hidecbar", "-H", action="store_true",
+    parser.add_argument("--hidecbar", "-c", action="store_true",
             help="hide the color bar")
+
+    parser.add_argument("--hideimage", "-i", action="store_true",
+            help="hide the image")
+
+    parser.add_argument("--showhist", "-H", action="store_true",
+            help="show the histogram of the image")
 
     parser.add_argument("filearg", nargs="?", metavar="FILE", const=None,
             help="the FITS file to process")
@@ -279,6 +358,8 @@ def main():
 
     gui.color_map = args.cmap
     gui.show_color_bar = not args.hidecbar
+    gui.show_image = not args.hideimage
+    gui.show_histogram = args.showhist
 
     if input_file_path is not None:
         gui.open_fits_file(input_file_path)
