@@ -42,9 +42,16 @@ from matplotlib import cm
 import tkinter as tk
 
 import argparse
+import json
 import os
 
 from astropy.io import fits
+
+###############################################################################
+
+CONFIG_FILE_NAME = ".fitsviewer.json"
+
+LAST_OPENED_FILES_LIST_MAX_SIZE = 15
 
 DEFAULT_COLOR_MAP = "gnuplot2" # "gray"
 
@@ -88,6 +95,7 @@ class TkGUI:
 
         self.file_path = None
         self.image_array = None
+        self.last_opened_files = []
 
         # Matplotlib ##################
 
@@ -120,16 +128,27 @@ class TkGUI:
         # Create a toplevel menu
         menubar = tk.Menu(self.root)
 
-        # Create a pulldown menu: /File
+        # Create a pulldown menu: /File #############################
         file_menu = tk.Menu(menubar, tearoff=0)
+
+        # /File/Open
         file_menu.add_command(label="Open...", command=self.select_fits_file)
+
+        # /File/Open Recent
+        self.open_recent_menu = tk.Menu(file_menu, tearoff=0)
+        file_menu.add_cascade(label="Open Recent", menu=self.open_recent_menu)
+
+        # /File/Close
         file_menu.add_command(label="Close", command=self.close_fits_file)
+
         file_menu.add_separator()
+
+        # /File/Exit
         file_menu.add_command(label="Exit", command=self.quit)
 
         menubar.add_cascade(label="File", menu=file_menu)
 
-        # Create a pulldown menu: /View
+        # Create a pulldown menu: /View #############################
         view_menu = tk.Menu(menubar, tearoff=0)
 
         view_menu.add_checkbutton(label="Show color bar",
@@ -165,6 +184,64 @@ class TkGUI:
         self.root.config(menu=menubar)
 
 
+    def load_config(self):
+        """
+        Load the user's configuration file.
+        """
+
+        # Check whether config_file_path is a directory
+        if os.path.isdir(self.config_file_path):
+            error_msg = "Error: please remove or rename the following direcory: " + os.path.abspath(self.config_file_path)
+            raise Exception(error_msg) # TODO
+
+        # Load the configuration file if it exists
+        if os.path.isfile(self.config_file_path):
+            with open(self.config_file_path, "r") as fd:
+                json_dict = json.load(fd)
+
+                if "last_opened_files" in json_dict:
+                    self.last_opened_files = json_dict["last_opened_files"]
+                    self.update_open_recent_menu()
+
+                if (self.color_map is None) and ("color_map" in json_dict):
+                    self.color_map = json_dict["color_map"]
+
+                #if (self.show_color_bar is None) and ("show_color_bar" in json_dict):
+                #    self.show_color_bar = json_dict["show_color_bar"]
+
+                #if (self.show_image is None) and ("show_image" in json_dict):
+                #    self.show_image = json_dict["show_image"]
+
+                #if (self.show_histogram is None) and ("show_histogram" in json_dict):
+                #    self.show_histogram = json_dict["show_histogram"]
+
+
+    def save_config(self):
+        """
+        Save the current setup in the user's configuration file.
+        """
+
+        # Check whether config_file_path is a directory ###
+
+        if os.path.isdir(self.config_file_path):
+            error_msg = "Error: please remove or rename the following direcory: " + os.path.abspath(self.config_file_path)
+            raise Exception(error_msg)
+
+        # Make the JSON dictionary ########################
+
+        json_dict = {}
+        json_dict["last_opened_files"] = self.last_opened_files
+        json_dict["color_map"] = self.color_map
+        #json_dict["show_color_bar"] = self.show_color_bar
+        #json_dict["show_image"] = self.show_image
+        #json_dict["show_histogram"] = self.show_histogram
+
+        # Save the JSON file ##############################
+
+        with open(self.config_file_path, "w") as fd:
+            json.dump(json_dict, fd, sort_keys=True, indent=4)
+
+
     def run(self):
         """
         Launch the main loop (Tk event loop).
@@ -175,9 +252,11 @@ class TkGUI:
 
 
     def quit(self):
+        self.save_config()
         self.root.quit()     # stops mainloop
         self.root.destroy()  # this is necessary on Windows to prevent
                              # Fatal Python Error: PyEval_RestoreThread: NULL tstate
+
 
     def select_fits_file(self):
         """
@@ -193,14 +272,17 @@ class TkGUI:
                     ('FITS Files', '.fits')
                 ]
 
-        HOME = os.path.expanduser("~")
+        if (len(self.last_opened_files) > 0) and (os.path.isdir(os.path.dirname(self.last_opened_files[0]))):
+            initial_directory = os.path.dirname(self.last_opened_files[0])
+        else:
+            initial_directory = os.path.expanduser("~")
 
         path = tk.filedialog.askopenfilename(parent=self.root,
-                                             filetypes=FILE_TYPES,     # optional
-                                             defaultextension='.fits', # optional
-                                             initialdir=HOME,          # optional
+                                             filetypes=FILE_TYPES,
+                                             defaultextension='.fits',
+                                             initialdir=initial_directory,
                                              #initialfile='demo.fits',  # optional
-                                             title='Select your file') # optional
+                                             title='Select your file')
 
         self.open_fits_file(path)
 
@@ -209,6 +291,7 @@ class TkGUI:
         """
         Open and display the given FITS file.
         """
+
         # READ THE INPUT FILE #################################################
 
         self.file_path = file_path
@@ -219,6 +302,51 @@ class TkGUI:
 
         self.root.title(self.file_path)
         self.draw_figure()
+
+        # UPDATE THE "LAST OPEN FILE LIST" ####################################
+
+        # Add the opened path to the beginning of the list (or move it to the beginning if it's already in the list)
+        if file_path in self.last_opened_files:
+            self.last_opened_files.remove(file_path)
+        self.last_opened_files.insert(0, file_path)
+
+        # Keep the N first elements (with N = LAST_OPENED_FILES_LIST_MAX_SIZE)
+        self.last_opened_files = self.last_opened_files[:LAST_OPENED_FILES_LIST_MAX_SIZE]
+
+        # UPDATE THE "FILE/OPEN RECENT" MENU ##################################
+
+        self.update_open_recent_menu()
+
+
+    def update_open_recent_menu(self):
+        """
+        Update the "File/Open Recent" menu.
+        """
+
+        # Remove all menu items
+        self.open_recent_menu.delete(0, LAST_OPENED_FILES_LIST_MAX_SIZE + 2)
+
+        # Add menu items
+        for recent_file_str in self.last_opened_files:
+            # See:
+            # - http://effbot.org/zone/tkinter-callbacks.htm
+            # - http://stackoverflow.com/questions/728356/dynamically-creating-a-menu-in-tkinter-lambda-expressions
+            # - http://stackoverflow.com/questions/938429/scope-of-python-lambda-functions-and-their-parameters
+            # - http://stackoverflow.com/questions/19693782/callback-function-tkinter-button-with-variable-parameter
+            self.open_recent_menu.add_command(label=recent_file_str, # TODO: only display the filename, not the full path ?
+                                              command=lambda file_path=recent_file_str: self.open_fits_file(file_path))
+
+        # Add the "Clear Menu" item
+        self.open_recent_menu.add_separator()
+        self.open_recent_menu.add_command(label="Clear Menu", command=self.clear_last_opened_files)
+
+
+    def clear_last_opened_files(self):
+        """
+        Clear the list of recent opened files.
+        """
+        self.last_opened_files = []
+        self.update_open_recent_menu()
 
 
     def close_fits_file(self):
@@ -287,6 +415,13 @@ class TkGUI:
     # PROPERTIES ##############################################################
 
     @property
+    def config_file_path(self):
+        home_path = os.path.expanduser("~")
+        return os.path.join(home_path, CONFIG_FILE_NAME)
+
+    ###
+
+    @property
     def show_color_bar(self):
         return self._show_color_bar.get()
 
@@ -329,6 +464,8 @@ def main():
 
     root = tk.Tk()   # TODO ?
     gui = TkGUI(root)
+
+    gui.load_config()
 
     # PARSE OPTIONS ###########################################################
 
