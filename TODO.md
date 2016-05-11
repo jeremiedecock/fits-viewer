@@ -4,6 +4,7 @@
 
 - [ ] Write docstrings
 - [ ] Write documentation
+- [ ] Ask to add fitsviewer to the NASA list of FITS Image Viewer
 
 ## fitsviewer
 
