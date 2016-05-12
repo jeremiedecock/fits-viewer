@@ -13,8 +13,11 @@
 - [x] Show the colorbar (from GUI and from command line)
 - [x] Choose the colormap (from GUI and from command line)
 - [x] Show an histogram (from GUI and from command line)
-- [ ] Memorize the last opened directory
+- [x] Memorize the last opened directory
+- [x] Menu "File/Open Resent"
 - [ ] Save the figure to PNG/PDF/... (from GUI and from command line)
+- [ ] Split gui: backend (matplotlib draw) + frontend (tk + nox)
+- [ ] Add a command: fitsviewer-nox which uses the nox frontend (for shell scripts)
 - [ ] Let the user indicates the min/max values for normalization of images (colormap + colorbar)
 - [ ] Show statistics (resolution, mean, std, ...)
 - [ ] Manage 3D pictures (...)
@@ -22,10 +25,11 @@
 - [ ] Display FITS header
 - [ ] Choose the HDU to display (checkbuttons in the menu bar: HDU / ...)
 - [ ] Zoom
-- [ ] Menu "Open resent.../"
 - [ ] Choose scale (linear, log, ...) (from GUI and from command line)
 - [ ] Show bargraph for the current row/line (like in DS9)
 - [ ] How to display hexagonal pictures from HESS/CTA (and keep the software generic) ?
+- [ ] Error dialogs for Tk frontend
+- [ ] "Help/About..." dialogs for Tk frontend
 
 ## png2fits
 
@@ -48,3 +52,7 @@
 ## fits2gif
 
 - [ ] Convert one 3D FITS file to one animated GIF file
+
+## fitsinfo
+
+- [ ] Returns the fits header in stdout
