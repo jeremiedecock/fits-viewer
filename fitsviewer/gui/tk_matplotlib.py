@@ -146,6 +146,9 @@ class TkGUI:
 
         menubar.add_cascade(label="HDU", menu=self.hdu_menu)
 
+        # Init the HDU menu
+        self.update_hdu_menu()
+
         # Create a pulldown menu: /View #############################
         view_menu = tk.Menu(menubar, tearoff=0)
 
@@ -173,9 +176,6 @@ class TkGUI:
                                           command=self.draw_figure)
 
         view_menu.add_cascade(label="Color Map", menu=colormap_menu)
-
-        # Init the HDU menu
-        self.update_hdu_menu()
 
         # Display the menu
         # The config method is used to attach the menu to the root window. The
@@ -323,7 +323,7 @@ class TkGUI:
         # Keep the N first elements (with N = LAST_OPENED_FILES_LIST_MAX_SIZE)
         self.last_opened_files = self.last_opened_files[:LAST_OPENED_FILES_LIST_MAX_SIZE]
 
-        # UPDATE THE "FILE/OPEN RECENT" MENU ##################################
+        # UPDATE THE SOME MENUS ###############################################
 
         self.update_open_recent_menu()
         self.update_hdu_menu()
