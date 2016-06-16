@@ -260,7 +260,7 @@ class TkGUI:
 
 
     def view_fits_header(self):
-        # TODO
+        # TODO: improve this dialog box
         hdu_info_list = self.hdu_list.info(output=False)
         messagebox.showinfo("HDU Info", str(hdu_info_list))
 
@@ -276,7 +276,8 @@ class TkGUI:
 
         # FILE_TYPES = [(label1, pattern1), (label2, pattern2), ...]
         FILE_TYPES = [
-                    ('FITS Files', '.fits')
+                    ('FITS Files', '.fits .fit .fts .fits.gz .fit.gz .fts.gz'),
+                    ('All Files', '.*')
                 ]
 
         if (len(self.last_opened_files) > 0) and (os.path.isdir(os.path.dirname(self.last_opened_files[0]))):
@@ -305,9 +306,14 @@ class TkGUI:
         self.hdu_index = 0
 
         # TODO: what if hdu_list[self.hdu_index] is not an image but a table ???
-        self.image_array = self.hdu_list[self.hdu_index].data # "hdu.data" is a Numpy Array
-
-        if self.image_array.ndim != 2:
+        data = self.hdu_list[self.hdu_index].data # "hdu.data" is a Numpy Array
+        if data.ndim == 2:
+            self.image_array = data
+        elif data.ndim == 3:
+            self.image_array = data[0]        # TODO
+        elif data.ndim == 4:
+            self.image_array = data[0][0]     # TODO
+        else:
             raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
 
         self.root.title(self.file_path)
