@@ -40,7 +40,6 @@ from matplotlib.backend_bases import key_press_handler
 from matplotlib import cm
 
 import tkinter as tk
-from tkinter import messagebox
 
 import argparse
 import json
@@ -114,10 +113,10 @@ class TkGUI:
         # Make a menubar ##############
 
         # Create a toplevel menu
-        menubar = tk.Menu(self.root)
+        self.menubar = tk.Menu(self.root)
 
         # Create a pulldown menu: /File #############################
-        file_menu = tk.Menu(menubar, tearoff=0)
+        file_menu = tk.Menu(self.menubar, tearoff=0)
 
         # /File/Open
         file_menu.add_command(label="Open...", command=self.select_fits_file)
@@ -134,23 +133,18 @@ class TkGUI:
         # /File/Exit
         file_menu.add_command(label="Exit", command=self.quit)
 
-        menubar.add_cascade(label="File", menu=file_menu)
+        self.menubar.add_cascade(label="File", menu=file_menu)
 
         # Create a pulldown menu: /HDU ##############################
-        self.hdu_menu = tk.Menu(menubar, tearoff=0)
+        self.hdu_menu = tk.Menu(self.menubar, tearoff=0)
 
-        # /HDU/View FITS Header
-        self.hdu_menu.add_command(label="View FITS Header", command=self.view_fits_header)
-
-        self.hdu_menu.add_separator()
-
-        menubar.add_cascade(label="HDU", menu=self.hdu_menu)
+        self.menubar.add_cascade(label="HDU", menu=self.hdu_menu)
 
         # Init the HDU menu
         self.update_hdu_menu()
 
         # Create a pulldown menu: /View #############################
-        view_menu = tk.Menu(menubar, tearoff=0)
+        view_menu = tk.Menu(self.menubar, tearoff=0)
 
         view_menu.add_checkbutton(label="Show color bar",
                                   variable=self._show_color_bar,
@@ -164,7 +158,7 @@ class TkGUI:
                                   variable=self._show_histogram,
                                   command=self.draw_figure)
 
-        menubar.add_cascade(label="View", menu=view_menu)
+        self.menubar.add_cascade(label="View", menu=view_menu)
 
         # Create a pulldown menu: /View/Color Map
         colormap_menu = tk.Menu(view_menu, tearoff=0)
@@ -182,7 +176,7 @@ class TkGUI:
         # contents of that menu is used to create a menubar at the top of the root
         # window. There is no need to pack the menu, since it is automatically
         # displayed by Tkinter.
-        self.root.config(menu=menubar)
+        self.root.config(menu=self.menubar)
 
 
     def load_config(self):
@@ -259,12 +253,6 @@ class TkGUI:
                              # Fatal Python Error: PyEval_RestoreThread: NULL tstate
 
 
-    def view_fits_header(self):
-        # TODO: improve this dialog box
-        hdu_info_list = self.hdu_list.info(output=False)
-        messagebox.showinfo("HDU Info", str(hdu_info_list))
-
-
     def select_fits_file(self):
         """
         Display a file dialog to select the FITS file to open.
@@ -335,19 +323,44 @@ class TkGUI:
         self.update_hdu_menu()
 
 
+    def show_hdu(self, hdu_index):
+        """
+        Open and display the given HDU item.
+        """
+        print("HDU", hdu_index) # TODO
+
+
     def update_hdu_menu(self):
         """
         Update the "HDU" menu.
         """
-        if self.hdu_list is None:
-            # Disable the "/HDU/View FITS Header" menu
-            self.hdu_menu.entryconfig("View FITS Header", state="disabled")
-        else:
-            # Enable the "/HDU/View FITS Header" menu
-            self.hdu_menu.entryconfig("View FITS Header", state="normal")
+        # Remove all menu items
+        self.hdu_menu.delete(0, 1000)  # TODO: hugly but it seems that tkinter doesn't have any special value to delete all items and doesn't offer any method to count the number of items...
 
-            # Populate the "/HDU/View FITS Header" menu (add one button per HDU of the opened file)
-            # TODO
+        if self.hdu_list is not None:
+            # Enable the "/HDU/Show HDU Info" menu
+            self.menubar.entryconfig("HDU", state="normal")
+
+            # Populate the "/HDU" menu (add one button per HDU of the opened file)
+            for hdu_index, hdu in enumerate(self.hdu_list):
+                # TODO
+                if hdu.is_image:
+                    _label = "HDU{} ({}D image {} {})".format(hdu_index,
+                                                              hdu.data.ndim,
+                                                              "x".join([str(dim) for dim in hdu.data.shape]),
+                                                              hdu.data.dtype.name)
+                else:
+                    _label = "HDU{} (table)".format(hdu_index)
+                # See:
+                # - http://effbot.org/zone/tkinter-callbacks.htm
+                # - http://stackoverflow.com/questions/728356/dynamically-creating-a-menu-in-tkinter-lambda-expressions
+                # - http://stackoverflow.com/questions/938429/scope-of-python-lambda-functions-and-their-parameters
+                # - http://stackoverflow.com/questions/19693782/callback-function-tkinter-button-with-variable-parameter
+                self.hdu_menu.add_command(label=_label,
+                                          command=lambda index=hdu_index: self.show_hdu(index))
+        else:
+            # Disable the "/HDU/Show HDU Info" menu
+            self.menubar.entryconfig("HDU", state="disabled")
 
 
     def update_open_recent_menu(self):
