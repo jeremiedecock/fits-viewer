@@ -40,6 +40,7 @@ from matplotlib.backend_bases import key_press_handler
 from matplotlib import cm
 
 import tkinter as tk
+from tkinter import messagebox
 
 import argparse
 import json
@@ -63,20 +64,6 @@ IMAGE_INTERPOLATION = 'nearest'    # "raw" (non smooth) map
 
 ###############################################################################
 
-def get_image_array_from_fits_file(file_path):
-    
-    hdu_list = fits.open(file_path)   # open the FITS file
-
-    if len(hdu_list) != 1:
-        raise Exception("The FITS file should contain only one HDU.")
-
-    image_array = hdu_list[0].data    # "hdu.data" is a Numpy Array
-
-    hdu_list.close()
-
-    return image_array
-
-
 def get_colour_map_list():
     """Return the list of the available colormaps."""
     return sorted(plt.cm.datad)
@@ -93,7 +80,8 @@ class TkGUI:
         TODO...
         """
 
-        self.file_path = None
+        self.hdu_list = None
+        self.hdu_index = None
         self.image_array = None
         self.last_opened_files = []
 
@@ -148,6 +136,16 @@ class TkGUI:
 
         menubar.add_cascade(label="File", menu=file_menu)
 
+        # Create a pulldown menu: /HDU ##############################
+        self.hdu_menu = tk.Menu(menubar, tearoff=0)
+
+        # /HDU/View FITS Header
+        self.hdu_menu.add_command(label="View FITS Header", command=self.view_fits_header)
+
+        self.hdu_menu.add_separator()
+
+        menubar.add_cascade(label="HDU", menu=self.hdu_menu)
+
         # Create a pulldown menu: /View #############################
         view_menu = tk.Menu(menubar, tearoff=0)
 
@@ -175,6 +173,9 @@ class TkGUI:
                                           command=self.draw_figure)
 
         view_menu.add_cascade(label="Color Map", menu=colormap_menu)
+
+        # Init the HDU menu
+        self.update_hdu_menu()
 
         # Display the menu
         # The config method is used to attach the menu to the root window. The
@@ -258,6 +259,12 @@ class TkGUI:
                              # Fatal Python Error: PyEval_RestoreThread: NULL tstate
 
 
+    def view_fits_header(self):
+        # TODO
+        hdu_info_list = self.hdu_list.info(output=False)
+        messagebox.showinfo("HDU Info", str(hdu_info_list))
+
+
     def select_fits_file(self):
         """
         Display a file dialog to select the FITS file to open.
@@ -294,8 +301,11 @@ class TkGUI:
 
         # READ THE INPUT FILE #################################################
 
-        self.file_path = file_path
-        self.image_array = get_image_array_from_fits_file(self.file_path)
+        self.hdu_list = fits.open(file_path)     # open the FITS file
+        self.hdu_index = 0
+
+        # TODO: what if hdu_list[self.hdu_index] is not an image but a table ???
+        self.image_array = self.hdu_list[self.hdu_index].data # "hdu.data" is a Numpy Array
 
         if self.image_array.ndim != 2:
             raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
@@ -316,6 +326,22 @@ class TkGUI:
         # UPDATE THE "FILE/OPEN RECENT" MENU ##################################
 
         self.update_open_recent_menu()
+        self.update_hdu_menu()
+
+
+    def update_hdu_menu(self):
+        """
+        Update the "HDU" menu.
+        """
+        if self.hdu_list is None:
+            # Disable the "/HDU/View FITS Header" menu
+            self.hdu_menu.entryconfig("View FITS Header", state="disabled")
+        else:
+            # Enable the "/HDU/View FITS Header" menu
+            self.hdu_menu.entryconfig("View FITS Header", state="normal")
+
+            # Populate the "/HDU/View FITS Header" menu (add one button per HDU of the opened file)
+            # TODO
 
 
     def update_open_recent_menu(self):
@@ -350,9 +376,12 @@ class TkGUI:
 
 
     def close_fits_file(self):
-        self.file_path = None
         self.image_array = None
+        self.hdu_list.close()
+        self.hdu_list = None
+        self.hdu_index = None
         self.clear_figure()
+        self.update_hdu_menu()
 
 
     def clear_figure(self):
@@ -413,6 +442,15 @@ class TkGUI:
 
 
     # PROPERTIES ##############################################################
+
+    @property
+    def file_path(self):
+        _file_path = None
+        if self.hdu_list is not None:
+            _file_path = self.hdu_list.filename()
+        return _file_path
+
+    ###
 
     @property
     def config_file_path(self):
