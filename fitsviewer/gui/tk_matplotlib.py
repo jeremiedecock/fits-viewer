@@ -32,6 +32,7 @@ __all__ = ['TkGUI']
 import matplotlib
 matplotlib.use('TkAgg')
 
+import numpy as np
 import matplotlib.pyplot as plt
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
@@ -79,9 +80,8 @@ class TkGUI:
         TODO...
         """
 
-        self.hdu_list = None
-        self.hdu_index = None
-        self.image_array = None
+        self.hdu_list = None         # The current HDU list
+        self.hdu_index = None        # The current HDU index
         self.last_opened_files = []
 
         # Matplotlib ##################
@@ -293,17 +293,6 @@ class TkGUI:
         self.hdu_list = fits.open(file_path)     # open the FITS file
         self.hdu_index = 0
 
-        # TODO: what if hdu_list[self.hdu_index] is not an image but a table ???
-        data = self.hdu_list[self.hdu_index].data # "hdu.data" is a Numpy Array
-        if data.ndim == 2:
-            self.image_array = data
-        elif data.ndim == 3:
-            self.image_array = data[0]        # TODO
-        elif data.ndim == 4:
-            self.image_array = data[0][0]     # TODO
-        else:
-            raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
-
         self.root.title(self.file_path)
         self.draw_figure()
 
@@ -323,11 +312,15 @@ class TkGUI:
         self.update_hdu_menu()
 
 
-    def show_hdu(self, hdu_index):
+    def select_hdu(self, hdu_index):
         """
         Open and display the given HDU item.
         """
-        print("HDU", hdu_index) # TODO
+        if (self.hdu_list is not None) and (0 <= hdu_index < len(self.hdu_list)):
+            self.hdu_index = hdu_index
+            self.draw_figure()
+        else:
+            raise Exception("Internal error.")
 
 
     def update_hdu_menu(self):
@@ -357,7 +350,7 @@ class TkGUI:
                 # - http://stackoverflow.com/questions/938429/scope-of-python-lambda-functions-and-their-parameters
                 # - http://stackoverflow.com/questions/19693782/callback-function-tkinter-button-with-variable-parameter
                 self.hdu_menu.add_command(label=_label,
-                                          command=lambda index=hdu_index: self.show_hdu(index))
+                                          command=lambda index=hdu_index: self.select_hdu(index))
         else:
             # Disable the "/HDU/Show HDU Info" menu
             self.menubar.entryconfig("HDU", state="disabled")
@@ -395,7 +388,6 @@ class TkGUI:
 
 
     def close_fits_file(self):
-        self.image_array = None
         self.hdu_list.close()
         self.hdu_list = None
         self.hdu_index = None
@@ -409,47 +401,84 @@ class TkGUI:
 
 
     def draw_figure(self):
-        if self.image_array is not None:
-            self.fig.clf() # TODO
-            
-            if self.show_histogram and self.show_image:
+        if self.hdu_list is not None:
+            if 0 <= self.hdu_index < len(self.hdu_list):
 
-                ax1 = self.fig.add_subplot(121)
-                ax2 = self.fig.add_subplot(122)
+                # Clear the figure ##############
+                self.fig.clf() # TODO
 
-                self._draw_histogram(ax1)
-                self._draw_image(ax2)
+                # Get the image #################
+                hdu = self.hdu_list[self.hdu_index]
 
-            elif self.show_histogram or self.show_image:
+                if hdu.is_image:
+                    # The current HDU is an image
 
-                ax1 = self.fig.add_subplot(111)
+                    # Get the image #############
+                    data = hdu.data                  # "hdu.data" is a Numpy Array
+                    if data.ndim == 1:
+                        image_array = np.tile(data, (256, 1))  # TODO ?
+                    elif data.ndim == 2:
+                        image_array = data
+                    elif data.ndim == 3:
+                        image_array = data[0]                  # TODO
+                    elif data.ndim == 4:
+                        image_array = data[0][0]               # TODO
+                    else:
+                        raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
+                    
+                    # Show the figure ###########
+                    if self.show_histogram and self.show_image:
 
-                if self.show_histogram:
-                    self._draw_histogram(ax1)
+                        ax1 = self.fig.add_subplot(121)
+                        ax2 = self.fig.add_subplot(122)
+
+                        self._draw_histogram(ax1, image_array)
+                        self._draw_image(ax2, image_array)
+
+                    elif self.show_histogram or self.show_image:
+
+                        ax1 = self.fig.add_subplot(111)
+
+                        if self.show_histogram:
+                            self._draw_histogram(ax1, image_array)
+                        else:
+                            self._draw_image(ax1, image_array)
                 else:
-                    self._draw_image(ax1)
+                    # The current HDU is a table
 
-            self.fig.canvas.draw()
+                    # TODO
+                    ax1 = self.fig.add_subplot(111)
+
+                    #ax1.text(0.5, 0.5, 'Table...', fontsize=15)
+                    ax1.text(0.5, 0.5, 'Table...', ha='center', va='center', fontsize=15, transform=ax1.transAxes)
+
+                    #ax1.set_xlim([0, 1])
+                    #ax1.set_ylim([0, 1])
+                    ax1.set_axis_off()
+
+                self.fig.canvas.draw()
+            else:
+                raise Exception("Internal error.")
 
 
-    def _draw_histogram(self, axis):
+    def _draw_histogram(self, axis, image_array):
 
             #axis.set_title(self.file_path)
 
             # nparray.ravel(): Return a flattened array.
-            values, bins, patches = axis.hist(self.image_array.ravel(),
+            values, bins, patches = axis.hist(image_array.ravel(),
                                               histtype=HISTOGRAM_TYPE,
-                                              bins=self.image_array.max() - self.image_array.min(),
+                                              bins=image_array.max() - image_array.min(),
                                               #range=(0., 255.),
                                               fc='k',
                                               ec='k')
 
-            axis.set_xlim([self.image_array.min(), self.image_array.max()])
+            axis.set_xlim([image_array.min(), image_array.max()])
 
 
-    def _draw_image(self, axis):
+    def _draw_image(self, axis, image_array):
 
-            im = axis.imshow(self.image_array,
+            im = axis.imshow(image_array,
                              origin='lower',
                              interpolation=IMAGE_INTERPOLATION,
                              cmap=self.color_map)

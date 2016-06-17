@@ -15,13 +15,13 @@
 - [x] Show an histogram (from GUI and from command line)
 - [x] Memorize the last opened directory
 - [x] Menu "File/Open Resent"
-- [ ] Choose the HDU to display (checkbuttons in the menu bar: HDU / ...)
+- [x] Choose the HDU to display (checkbuttons in the menu bar: HDU / ...)
 - [ ] Manage 3D pictures (...)
-- [ ] Manage 2D tables (...)
 - [ ] Display HDU header
 - [ ] Choose scale (linear, log, ...) (from GUI and from command line)
 - [ ] Show statistics (resolution, mean, std, ...)
 - [ ] Save the figure to PNG/PDF/... (from GUI and from command line)
+- [ ] Manage 2D tables (...)
 - [ ] Split gui: backend (matplotlib draw) + frontend (tk + nox)
 - [ ] Add a command: fitsviewer-nox which uses the nox frontend (for shell scripts)
 - [ ] Let the user indicates the min/max values for normalization of images (colormap + colorbar)
