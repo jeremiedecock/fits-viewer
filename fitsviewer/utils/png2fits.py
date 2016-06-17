@@ -5,16 +5,24 @@
 
 import argparse
 from astropy.io import fits
+import os
 
 import PIL.Image as pil_img # PIL.Image is a module not a class...
 import numpy as np
-import os
 
-# SAVE THE IMAGE ##############################################################
 
-def save_to_fits(img, output_file_path):
+def load_image(input_file_path):
     """
-    img is the image and it should be a 2D numpy array with values in the range [0,255].
+    Load the 'input_file_path' and return a 2D numpy array of the image it contains.
+    """
+    image_array = np.array(pil_img.open(input_file_path).convert('L'))
+    return image_array
+
+
+def save_fits_file(image_array, output_file_path):
+    """
+    image_array is the image and it should be a 2D numpy array with values in
+    the range [0,255].
     """
 
     # FLIP THE IMAGE IN THE UP/DOWN DIRECTION #############
@@ -22,34 +30,36 @@ def save_to_fits(img, output_file_path):
     #          whereas with pillow, the (0,0) point is at the TOP left corner
     #          thus the image should be converted
 
-    img = np.flipud(img)
+    image_array = np.flipud(image_array)
 
     # CREATE THE FITS STRUCTURE ###########################
 
-    hdu = fits.PrimaryHDU(img)
+    hdu = fits.PrimaryHDU(image_array)
 
     # SAVE THE FITS FILE ##################################
 
-    # Remove the FITS file if it already exists
-    if os.path.isfile(output_file_path):
-        os.remove(output_file_path)
-
     # Save the FITS file
-    hdu.writeto(output_file_path)
+    hdu.writeto(output_file_path, clobber=True)  # clobber=True: overwrite the file if it already exists
+
 
 def main():
 
     # PARSE OPTIONS ###########################################################
 
-    parser = argparse.ArgumentParser(description="Convert FITS files to PNG images")
-    parser.add_argument("filearg", nargs=1, metavar="FILE", help="the FITS file to convert")
+    desc = "Convert PNG or JPEG files to FITS images"
+    parser = argparse.ArgumentParser(description=desc)
+    parser.add_argument("filearg", nargs=1, metavar="FILE",
+                        help="the FITS file to convert")
     args = parser.parse_args()
     input_file_path = args.filearg[0]
 
+    output_file_path = os.path.splitext(input_file_path)[0] + ".fits"
+
     # READ AND SAVE DATA ######################################################
 
-    img = np.array(pil_img.open(input_file_path).convert('L'))  # img is a 2D numpy array
-    save_to_fits(img, "out.fits")
+    image_array = load_image(input_file_path) # image_array is a 2D numpy array
+    save_fits_file(image_array, output_file_path)
+
 
 if __name__ == "__main__":
     main()
