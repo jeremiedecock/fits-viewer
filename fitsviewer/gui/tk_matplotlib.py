@@ -447,7 +447,11 @@ class TkGUI:
                     ax1 = self.fig.add_subplot(111)
 
                     #ax1.text(0.5, 0.5, 'Table...', fontsize=15)
-                    ax1.text(0.5, 0.5, 'Table...', ha='center', va='center', fontsize=15, transform=ax1.transAxes)
+                    ax1.text(0.5, 0.5,
+                             "The FITS table visualization hasn't been implemented yet.",
+                             ha='center', va='center',
+                             fontsize=15,
+                             transform=ax1.transAxes, wrap=True)
 
                     #ax1.set_xlim([0, 1])
                     #ax1.set_ylim([0, 1])
