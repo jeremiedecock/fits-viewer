@@ -414,17 +414,14 @@ class TkGUI:
                     # The current HDU is an image
 
                     # Get the image #############
-                    data = hdu.data                  # "hdu.data" is a Numpy Array
-                    if data.ndim == 1:
-                        image_array = np.tile(data, (256, 1))  # TODO ?
-                    elif data.ndim == 2:
-                        image_array = data
-                    elif data.ndim == 3:
-                        image_array = data[0]                  # TODO
-                    elif data.ndim == 4:
-                        image_array = data[0][0]               # TODO
+                    if hdu.data.ndim <= 2:
+                        image_array = hdu.data
+                    elif hdu.data.ndim == 3:
+                        image_array = hdu.data[0]                  # TODO
+                    elif hdu.data.ndim == 4:
+                        image_array = hdu.data[0][0]               # TODO
                     else:
-                        raise Exception("Unexpected error: the input FITS file should contain a 2D array.")
+                        raise Exception("Internal error.")
                     
                     # Show the figure ###########
                     if self.show_histogram and self.show_image:
@@ -477,6 +474,10 @@ class TkGUI:
 
 
     def _draw_image(self, axis, image_array):
+
+            if image_array.ndim == 1:
+                image_array = np.tile(image_array, (256, 1))  # TODO ?
+                axis.get_yaxis().set_visible(False)
 
             im = axis.imshow(image_array,
                              origin='lower',
