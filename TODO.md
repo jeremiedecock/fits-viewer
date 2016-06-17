@@ -34,7 +34,7 @@
 
 ## png2fits
 
-- [ ] Use the input file basename as the default output file path
+- [x] Use the input file basename as the default output file path
 - [ ] Set the output file path
 - [ ] Set the min/max value of the output domain
 - [ ] Ask before removing the output file + add a --force option
@@ -43,12 +43,12 @@
 
 ## fits2png
 
-- [ ] Use the input file basename as the default output file path
+- [x] Use the input file basename as the default output file path
+- [x] Convert one 3D FITS file to multiple PNG files
 - [ ] Set the min/max value of the input domain
 - [ ] Ask before removing the output file + add a --force option
 - [ ] Set the output file path
 - [ ] Convert multiple files
-- [ ] Convert one 3D FITS file to multiple PNG files
 
 ## fits2gif
 
