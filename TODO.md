@@ -17,7 +17,8 @@
 - [x] Menu "File/Open Resent"
 - [x] Choose the HDU to display (checkbuttons in the menu bar: HDU / ...)
 - [ ] Manage 3D pictures (...)
-- [ ] Display HDU header
+- [ ] Manage 4D (and above) pictures ?
+- [ ] Display HDU header (use the TTK Notebook widget to choose between displaying the image or the header array (with ttk.treeview))
 - [ ] Choose scale (linear, log, ...) (from GUI and from command line)
 - [ ] Show statistics (resolution, mean, std, ...)
 - [ ] Save the figure to PNG/PDF/... (from GUI and from command line)
