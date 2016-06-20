@@ -16,6 +16,12 @@
 - [x] Memorize the last opened directory
 - [x] Menu "File/Open Resent"
 - [x] Choose the HDU to display (checkbuttons in the menu bar: HDU / ...)
+- [ ] Small improvements:
+    - [ ] "Recent File List": if the file is not available anymore then display a message "File not found" and remove the file from the "Recent File List"
+    - [ ] "Select File Dialog": when the "cancel" button is clicked the function return the '' (empty) string which cause an exception... Change that to silently ignore empty return strings...
+    - [ ] Fix the issue with the wrong number of "bins" when making the histrogram
+    - [ ] "HDU" menu: use a radio button to indicate which HDU is currently used
+    - [ ] Add a Makefile to clean the working directory, publish the current version on PyPI, install from PyPI, update, ...
 - [ ] Manage 3D pictures (...)
 - [ ] Manage 4D (and above) pictures ?
 - [ ] Display HDU header (use the TTK Notebook widget to choose between displaying the image or the header array (with ttk.treeview))
