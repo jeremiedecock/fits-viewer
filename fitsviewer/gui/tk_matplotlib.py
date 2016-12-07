@@ -464,34 +464,35 @@ class TkGUI:
 
     def _draw_histogram(self, axis, image_array):
 
-            #axis.set_title(self.file_path)
+        #axis.set_title(self.file_path)
+        bins = math.ceil(image_array.max() - image_array.min())
 
-            # nparray.ravel(): Return a flattened array.
-            values, bins, patches = axis.hist(image_array.ravel(),
-                                              histtype=HISTOGRAM_TYPE,
-                                              bins=image_array.max() - image_array.min(),
-                                              #range=(0., 255.),
-                                              fc='k',
-                                              ec='k')
+        # nparray.ravel(): Return a flattened array.
+        values, bins, patches = axis.hist(image_array.ravel(),
+                                          histtype=HISTOGRAM_TYPE,
+                                          bins=bins,
+                                          #range=(0., 255.),
+                                          fc='k',
+                                          ec='k')
 
-            axis.set_xlim([image_array.min(), image_array.max()])
+        axis.set_xlim([image_array.min(), image_array.max()])
 
 
     def _draw_image(self, axis, image_array):
 
-            if image_array.ndim == 1:
-                image_array = np.tile(image_array, (256, 1))  # TODO ?
-                axis.get_yaxis().set_visible(False)
+        if image_array.ndim == 1:
+            image_array = np.tile(image_array, (256, 1))  # TODO ?
+            axis.get_yaxis().set_visible(False)
 
-            im = axis.imshow(image_array,
-                             origin='lower',
-                             interpolation=IMAGE_INTERPOLATION,
-                             cmap=self.color_map)
+        im = axis.imshow(image_array,
+                         origin='lower',
+                         interpolation=IMAGE_INTERPOLATION,
+                         cmap=self.color_map)
 
-            #axis.set_axis_off()
+        #axis.set_axis_off()
 
-            if self.show_color_bar:
-                plt.colorbar(im) # draw the colorbar
+        if self.show_color_bar:
+            plt.colorbar(im, ax=axis) # draw the colorbar
 
 
     # PROPERTIES ##############################################################
