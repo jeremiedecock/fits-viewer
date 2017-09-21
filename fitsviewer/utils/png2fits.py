@@ -38,8 +38,11 @@ def save_fits_file(image_array, output_file_path):
 
     # SAVE THE FITS FILE ##################################
 
-    # Save the FITS file
-    hdu.writeto(output_file_path, clobber=True)  # clobber=True: overwrite the file if it already exists
+    # Save the FITS file (overwrite the file if it already exists)
+    try:
+        hdu.writeto(output_file_path, overwrite=True)
+    except TypeError:
+        hdu.writeto(output_file_path, clobber=True)
 
 
 def main():
